@@ -21,8 +21,22 @@ router.get('/', function (req, res) {
     res.sendFile(path.join(__dirname, '../../public/join.html'));
 })
 
+router.post('/', function(req, res){
+    var body = req.body;
+    var email =body.email;
+    var name = body.name;
+    var passwd = body.password;
+    console.log(email);
 
-
+    var query = connection.query(
+        'insert into user (email,name,pw) values ("' 
+        + email + '","' + name + '","' + passwd + '")', 
+        function(err, rows){
+            if(err) {throw err;}
+            console.log("ok db insert");
+        }
+    )
+})
 
 // 이 게 있어야 app.js에서 app.use로 쓸 수 있음
 module.exports = router;
