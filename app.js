@@ -2,8 +2,9 @@ var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
 var cors = require('cors');
-var main = require('./router/main')
-var email = require('./router/email')
+
+var router = require('./router/index')
+
 
 
 app.listen(3000, function () {
@@ -19,11 +20,6 @@ app.set('view engine', 'ejs')
 
 
 // routing
-app.use('/main', main)
-app.use('/email', email)
+app.use(router)
 
-app.get('/', function (req, res) {
-    console.log('test!')
-    res.sendFile(__dirname + "/public/main.html")
-});
 

@@ -3,7 +3,7 @@ var app = express();
 var router = express.Router();
 var path = require('path');
 
-// app.js에서 /main으로 들어오는 걸 여기로 다시 연결시켰기 때문에 '/'가 돼야 함.
+// /main으로 들어오는 걸 여기로 다시 연결시켰기 때문에 '/'가 돼야 함.
 router.get('/', function (req, res) {
     console.log('main js loaded')
     res.sendFile(path.join(__dirname, "../public/main.html"))
