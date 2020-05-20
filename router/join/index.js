@@ -15,25 +15,27 @@ var connection = mysql.createConnection({
 
 connection.connect()
 
-//ROUTER
+//ROUTER: 같은 url이더라도 요청방식에 따라서 다르게 처리해줄 수 있다.
 router.get('/', function (req, res) {
     console.log('get join url');
     res.sendFile(path.join(__dirname, '../../public/join.html'));
 })
 
-router.post('/', function(req, res){
+router.post('/', function (req, res) {
     var body = req.body;
-    var email =body.email;
+    var email = body.email;
     var name = body.name;
     var passwd = body.password;
     console.log(email);
 
+    var sql = { email: email, name: name, pw: passwd }
+
     var query = connection.query(
-        'insert into user (email,name,pw) values ("' 
-        + email + '","' + name + '","' + passwd + '")', 
-        function(err, rows){
-            if(err) {throw err;}
-            console.log("ok db insert");
+        'insert into user set ?', sql,
+        function (err, rows) {
+            if (err) { throw err; }
+            console.log("ok db insert: ", rows.insertId,  name);
+            res.render('welcome.ejs', {'name': name, 'id': rows.insertId})
         }
     )
 })

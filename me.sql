@@ -24,3 +24,5 @@ insert into user(email,name,pw) values ('vandlaw@naver.com', 'crong', 'asdf');
 select * from user;
 
 ALTER USER ‘root’@’localhost’ IDENTIFIED WITH mysql_native_password BY ‘sky120’
+
+DELETE FROM user WHERE id=3;
