@@ -3,10 +3,12 @@ var app = express();
 var router = express.Router();
 var path = require('path');
 
-// /main으로 들어오는 걸 여기로 다시 연결시켰기 때문에 '/'가 돼야 함.
+// main page에는 login이 될 때만 (세션 정보가 있을 때만) 접근이 가능하게 하자.
 router.get('/', function (req, res) {
-    console.log('main js loaded', req.user)
     var id = req.user;
+    if (!id) {
+        res.render('login.ejs')
+    }
     res.render('main.ejs', {'id' : id});
 
 });
