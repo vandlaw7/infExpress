@@ -4,6 +4,9 @@ var router = express.Router();
 var path = require('path')
 var mysql = require('mysql')
 
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
+
 // DATABASE SETTING 
 var connection = mysql.createConnection({
     host: 'localhost',
@@ -21,24 +24,33 @@ router.get('/', function (req, res) {
     res.sendFile(path.join(__dirname, '../../public/join.html'));
 })
 
-router.post('/', function (req, res) {
-    var body = req.body;
-    var email = body.email;
-    var name = body.name;
-    var passwd = body.password;
-    console.log(email);
+passport.use('local-join', new LocalStrategy({
+    usernameField: 'email',
+    passwordField: 'password',
+    passReqtoCallback: true
+}, function (req, email, password, done) {
+    console.log('local=join callback called');
+}
+));
 
-    var sql = { email: email, name: name, pw: passwd }
+// router.post('/', function (req, res) {
+//     var body = req.body;
+//     var email = body.email;
+//     var name = body.name;
+//     var passwd = body.password;
+//     console.log(email);
 
-    var query = connection.query(
-        'insert into user set ?', sql,
-        function (err, rows) {
-            if (err) { throw err; }
-            console.log("ok db insert: ", rows.insertId,  name);
-            res.render('welcome.ejs', {'name': name, 'id': rows.insertId})
-        }
-    )
-})
+//     var sql = { email: email, name: name, pw: passwd }
+
+//     var query = connection.query(
+//         'insert into user set ?', sql,
+//         function (err, rows) {
+//             if (err) { throw err; }
+//             console.log("ok db insert: ", rows.insertId,  name);
+//             res.render('welcome.ejs', {'name': name, 'id': rows.insertId})
+//         }
+//     )
+// })
 
 // 이 게 있어야 app.js에서 app.use로 쓸 수 있음
 module.exports = router;

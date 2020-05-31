@@ -9,8 +9,8 @@ var join = require('./join/index')
 
 //url routing
 router.get('/', function (req, res) {
-    console.log('indexjs / path loaded')
-    res.sendFile(path.join(__dirname, "../public/main.html"))
+    console.log('get join url')
+    res.render('join.ejs');
 });
 
 router.use('/main', main)
