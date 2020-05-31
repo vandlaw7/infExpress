@@ -23,72 +23,52 @@ router.get('/', function (req, res) {
     var msg;
     var errMsg = req.flash('error')
     if (errMsg) msg = errMsg;
-    res.render('login.ejs', {'message' : msg});
+    res.render('login.ejs', { 'message': msg });
 })
 
-passport.serializeUser(function(user,done) {
+passport.serializeUser(function (user, done) {
     console.log('passport session save : ', user.id);
     done(null, user.id);
 })
 
-passport.deserializeUser(function(id,done) {
+passport.deserializeUser(function (id, done) {
     console.log('passport session get id : ', id);
     // user라는 객체에 담아서 전달함.
     done(null, id);
 })
 
 
-passport.use('local-join', new LocalStrategy({
+passport.use('local-login', new LocalStrategy({
     usernameField: 'email',
     passwordField: 'password',
     passReqToCallback: true
 }, function (req, email, password, done) {
-    var query = connection.query('select * from user where email=?', [email], function(err, rows){
+    var query = connection.query('select * from user where email=?', [email], function (err, rows) {
         if (err) return done(err);
 
         if (rows.length) {
-            console.log('existed user')
-            // 이미 있어서 오류를 띄우는 것. faile할 때 저 message를 가져가게 됨.
-            return done(null ,false, {message : "your email is already used"})
+            return done(null,{ 'email' : email, id:rows[0].id })
         } else {
-            var sql = {email: email, pw:password, name: 'default'};
-            var query = connection.query('insert into user set ?', sql, function(err, rows){
-                if(err) throw err;
-                return done(null, {'email' : email, 'id' : rows.insertId});
-            })
+            return done(null,false, {'message' : "your login info is not found >.<"});
         }
-    }    
-)
+    }
+    )
 }));
 
+router.post('/', function (req, res, next) {
+    passport.authenticate('local-login', function (err, user, info) {
+        if (err) res.status(500).json(err);
+        if (!user) return res.status(401).json(info.message);
 
-//실제 처리는 위의 LocalStrategy에서 구현이 됨. 처리 후에 어떻게 할 지를 이 뒤에서 해주는 것임.
-router.post('/', passport.authenticate('local-join', {
-    successRedirect: '/main',
-    failureRedirect: '/join',
-    failureFlash: true 
-}))
+        req.logIn(user, function (err) {
+            if (err) { return next(err); }
+            return res.json(user);
+        });
 
+    })(req,res, next)
+}
+)
 
-
-// router.post('/', function (req, res) {
-//     var body = req.body;
-//     var email = body.email;
-//     var name = body.name;
-//     var passwd = body.password;
-//     console.log(email);
-
-//     var sql = { email: email, name: name, pw: passwd }
-
-//     var query = connection.query(
-//         'insert into user set ?', sql,
-//         function (err, rows) {
-//             if (err) { throw err; }
-//             console.log("ok db insert: ", rows.insertId,  name);
-//             res.render('welcome.ejs', {'name': name, 'id': rows.insertId})
-//         }
-//     )
-// })
 
 
 // 이 게 있어야 app.js에서 app.use로 쓸 수 있음
