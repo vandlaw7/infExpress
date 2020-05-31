@@ -20,18 +20,34 @@ connection.connect()
 
 //ROUTER: 같은 url이더라도 요청방식에 따라서 다르게 처리해줄 수 있다.
 router.get('/', function (req, res) {
-    console.log('get join url');
-    res.render('join.ejs');
+    var msg;
+    var errMsg = req.flash('error')
+    if (errMsg) msg = errMsg;
+    res.render('join.ejs', {'message' : msg});
 })
 
 passport.use('local-join', new LocalStrategy({
     usernameField: 'email',
     passwordField: 'password',
-    passReqtoCallback: true
+    passReqToCallback: true
 }, function (req, email, password, done) {
-    console.log('local-join callback called');
-}
-));
+    var query = connection.query('select * from user where email=?', [email], function(err, rows){
+        if (err) return done(err);
+
+        if (rows.length) {
+            console.log('existed user')
+            // 이미 있어서 오류를 띄우는 것. faile할 때 저 message를 가져가게 됨.
+            return done(null ,false, {message : "your email is already used"})
+        } else {
+            var sql = {email: email, pw:password};
+            var query = connection.query('insert into user set ?', sql, function(err, rows){
+                if(err) throw err;
+                return done(null, {'email' : email, 'id' : rows.insertId});
+            })
+        }
+    }    
+)
+}));
 
 
 //실제 처리는 위의 LocalStrategy에서 구현이 됨. 처리 후에 어떻게 할 지를 이 뒤에서 해주는 것임.
