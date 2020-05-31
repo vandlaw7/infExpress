@@ -21,7 +21,7 @@ connection.connect()
 //ROUTER: 같은 url이더라도 요청방식에 따라서 다르게 처리해줄 수 있다.
 router.get('/', function (req, res) {
     console.log('get join url');
-    res.sendFile(path.join(__dirname, '../../public/join.html'));
+    res.render('join.ejs');
 })
 
 passport.use('local-join', new LocalStrategy({
@@ -29,10 +29,17 @@ passport.use('local-join', new LocalStrategy({
     passwordField: 'password',
     passReqtoCallback: true
 }, function (req, email, password, done) {
-    console.log('local=join callback called');
+    console.log('local-join callback called');
 }
 ));
 
+
+//실제 처리는 위의 LocalStrategy에서 구현이 됨. 처리 후에 어떻게 할 지를 이 뒤에서 해주는 것임.
+router.post('/', passport.authenticate('local-join', {
+    successRedirect: '/main',
+    failureRedirect: '/join',
+    failureFlash: true 
+}))
 // router.post('/', function (req, res) {
 //     var body = req.body;
 //     var email = body.email;
