@@ -26,6 +26,18 @@ router.get('/', function (req, res) {
     res.render('join.ejs', {'message' : msg});
 })
 
+passport.serializeUser(function(user,done) {
+    console.log('passport session save : ', user.id);
+    done(null, user.id);
+})
+
+passport.deserializeUser(function(id,done) {
+    console.log('passport session get id : ', id);
+    // user라는 객체에 담아서 전달함.
+    done(null, id);
+})
+
+
 passport.use('local-join', new LocalStrategy({
     usernameField: 'email',
     passwordField: 'password',
@@ -39,7 +51,7 @@ passport.use('local-join', new LocalStrategy({
             // 이미 있어서 오류를 띄우는 것. faile할 때 저 message를 가져가게 됨.
             return done(null ,false, {message : "your email is already used"})
         } else {
-            var sql = {email: email, pw:password};
+            var sql = {email: email, pw:password, name: 'default'};
             var query = connection.query('insert into user set ?', sql, function(err, rows){
                 if(err) throw err;
                 return done(null, {'email' : email, 'id' : rows.insertId});
@@ -56,6 +68,9 @@ router.post('/', passport.authenticate('local-join', {
     failureRedirect: '/join',
     failureFlash: true 
 }))
+
+
+
 // router.post('/', function (req, res) {
 //     var body = req.body;
 //     var email = body.email;
@@ -74,6 +89,7 @@ router.post('/', passport.authenticate('local-join', {
 //         }
 //     )
 // })
+
 
 // 이 게 있어야 app.js에서 app.use로 쓸 수 있음
 module.exports = router;

@@ -5,8 +5,10 @@ var path = require('path');
 
 // /main으로 들어오는 걸 여기로 다시 연결시켰기 때문에 '/'가 돼야 함.
 router.get('/', function (req, res) {
-    console.log('main js loaded')
-    res.sendFile(path.join(__dirname, "../public/main.html"))
+    console.log('main js loaded', req.user)
+    var id = req.user;
+    res.render('main.ejs', {'id' : id});
+
 });
 
 
