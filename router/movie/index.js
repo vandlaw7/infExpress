@@ -78,6 +78,28 @@ router.get('/:title', function (req, res) {
 
 })
 
+// 4. /movie/:title, DELETE
+router.delete('/:title', function (req, res) {
+    var title = req.params.title;
+    console.log("title =>", title);
+
+    var responseData = {};
+
+    var query = connection.query(
+        'delete from movie where title =?', [title], function (err, rows) {
+            if (err) throw err;
+            console.log("row is ->", rows);
+            if (rows.affectedRows > 0) {
+                responseData.result = 1;
+                responseData.data = title;
+            } else {
+                responseData.result = 0;
+            }
+            res.json(responseData)
+        })
+
+})
+
 
 
 // //ROUTER
